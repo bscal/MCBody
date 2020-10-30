@@ -1,4 +1,4 @@
-package me.bscal.mcbody.player;
+package me.bscal.mcbody.entities;
 
 import java.text.MessageFormat;
 import java.util.HashMap;
@@ -15,7 +15,14 @@ public class BodyPlayer
 
     public BodyPlayer()
     {
-        AddPart(new BodyPart(PartType.));
+        AddPart(new BodyPart(PartType.HEAD.id, 6.0));
+        AddPart(new BodyPart(PartType.BODY.id, 14.0));
+
+        AddPart(new BodyPart(PartType.LEG_LEFT.id, 10.0));
+        AddPart(new BodyPart(PartType.LEG_RIGHT.id, 10.0));
+
+        AddPart(new BodyPart(PartType.ARM_LEFT.id, 8.0));
+        AddPart(new BodyPart(PartType.ARM_RIGHT.id, 8.0));
     }
 
     public void AddPart(BodyPart part)

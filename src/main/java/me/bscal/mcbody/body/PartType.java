@@ -10,13 +10,6 @@ public enum PartType
     ARM_LEFT(4, "Left Arm"),
     ARM_RIGHT(5, "Right Arm");
 
-    // public static final int HEAD_ID = 0;
-    // public static final int BODY_ID = 1;
-    // public static final int LEFT_LEG_ID = 2;
-    // public static final int RIGHT_LEG_ID = 3;
-    // public static final int LEFT_ARM_ID = 4;
-    // public static final int RIGHT_ARM_ID = 5;
-
     public final int id;
     public String localName;
 

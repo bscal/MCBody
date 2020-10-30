@@ -8,10 +8,11 @@ public class BodyPart
 
     private double m_maxHp;
     private double m_hp;
+    private double m_dmgMultiplier;
 
     private static final double MIN_HP = 0;
 
-    protected BodyPart(int id, double maxHp)
+    public BodyPart(int id, double maxHp)
     {
         m_id = id;
         m_maxHp = maxHp;
@@ -51,6 +52,16 @@ public class BodyPart
     public double GetHP()
     {
         return m_hp;
+    }
+
+    public void SetDamageMultiplier(double multiplier)
+    {
+        m_dmgMultiplier = multiplier;
+    }
+
+    public double GetDamageMultiplier()
+    {
+        return m_dmgMultiplier;
     }
 
 }
