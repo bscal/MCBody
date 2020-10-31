@@ -1,5 +1,8 @@
 package me.bscal.mcbody.entities.profiles;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import org.bukkit.entity.Drowned;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.PigZombie;
@@ -16,9 +19,11 @@ import me.bscal.mcbody.body.PartType;
 public class PlayerProfile extends MobProfile
 {
 
-    protected PlayerProfile()
+    public PlayerProfile()
     {
-        super(2.0, 1.0, 0.75, 0.75, 2.0);
+        super(2.0, 1.0, 0.75, 0.75, 2.0, Arrays.asList(new Class<?>[]
+        { Player.class, Zombie.class, PigZombie.class, Villager.class, Pillager.class, Piglin.class, Drowned.class
+        }));
     }
 
     @Override
@@ -70,15 +75,4 @@ public class PlayerProfile extends MobProfile
         }
         return 0;
     }
-
-    @Override
-    protected boolean IsValid(final EntityDamageByEntityEvent evt)
-    {
-        Entity damagee = evt.getEntity();
-
-        return (damagee instanceof Player || damagee instanceof Zombie || damagee instanceof Villager
-                || damagee instanceof Pillager || damagee instanceof Piglin || damagee instanceof PigZombie
-                || damagee instanceof Drowned);
-    }
-
 }

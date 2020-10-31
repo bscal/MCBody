@@ -9,6 +9,8 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
 import fr.loisduplain.api.raycast.*;
 import fr.loisduplain.api.raycast.Raycast.RaycastType;
+import me.bscal.mcbody.MCBody;
+import me.bscal.mcbody.body.PartType;
 
 public class CombatListeners implements Listener
 {
@@ -23,45 +25,41 @@ public class CombatListeners implements Listener
     {
         double dist = damager.getLocation().distance(damagee.getLocation());
         Raycast ray = new Raycast(damager.getLocation(), dist + RAY_LENGTH);
+        ray.setShowRayCast(MCBody.Debug);
 
         if (ray.compute(RaycastType.ENTITY))
         {
             // Hit
             Location hitLoc = ray.getHurtLocation();
             Location offset = damagee.getLocation().subtract(hitLoc);
-
-            // heights .4 .8 .6 , arms .6 / width .8 , arms .4
-
-            if (offset.getY() > HEAD_OFFSET)
-            {
-                // HEADSHOT
-            }
-            // Body
-
-            double side = offset.getX() - offset.getBlockZ();
-            if (Math.abs(side) > .4) // Arms
-            {
-                if (side > 0)
-                {
-                    // Left
-                }
-                else
-                {
-                    // Right
-                }
-            }
-            else if (offset.getY() < .6) // Legs
-            {
-                if (side > 0)
-                {
-                    // Left
-                }
-                else
-                {
-                    // Right
-                }
-            }
+            PartType type = GetPartTypeFromLoc(offset);
+            MCBody.Get().GetEntityManager().HandleDamage(e, cause, damage, type);
         }
+
+    }
+
+    private PartType GetPartTypeFromLoc(final Location offset)
+    {
+        // heights .4 .8 .6 , arms .6 / width .8 , arms .4
+        if (offset.getY() > HEAD_OFFSET) // Head shot
+            return PartType.HEAD;
+        double side = offset.getX() - offset.getBlockZ();
+        if (Math.abs(side) > .4) // Arms
+        {
+            if (side > 0) // Left
+                return PartType.ARM_LEFT;
+            else // Right
+                return PartType.ARM_RIGHT;
+        }
+        else if (offset.getY() < .6) // Legs
+        {
+            if (side > 0) // Left
+                return PartType.LEG_LEFT;
+            else // Right
+                return PartType.LEG_RIGHT;
+        }
+        else // Body
+            return PartType.BODY;
     }
 
     private static Yaw GetYaw(Entity ent)
@@ -88,6 +86,9 @@ public class CombatListeners implements Listener
 
     public enum Yaw
     {
-        NORTH, EAST, SOUTH, WEST
+        NORTH,
+        EAST,
+        SOUTH,
+        WEST
     }
 }

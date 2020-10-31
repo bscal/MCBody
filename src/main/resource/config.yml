@@ -3,3 +3,7 @@ database:
   database: "minecraft"
   user: "user"
   password: "password"
+
+debug: true
+
+individualPlayerParts: false
