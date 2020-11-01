@@ -32,7 +32,7 @@
 
     <dependency>
       <groupId>gyurix</groupId>
-      <artifactId>SpigotLib</artifactId>
+      <artifactId>spigotlib</artifactId>
       <version>10.2.6</version>
       <scope>system</scope>
       <systemPath>${pom.basedir}/vendor/SpigotLib/SpigotLib-10.2.6.jar</systemPath>

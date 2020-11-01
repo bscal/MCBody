@@ -2,7 +2,7 @@
 # Libraries
 #
 vendor/RayCastAPI/*
-vendor/SpigotLib/*
+#vendor/SpigotLib/*
 
 #
 # Standard Maven .gitignore
