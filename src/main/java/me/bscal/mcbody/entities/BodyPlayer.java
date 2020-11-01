@@ -4,6 +4,9 @@ import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.bukkit.entity.Player;
+
+import gyurix.configfile.ConfigData;
 import me.bscal.mcbody.MCBody;
 import me.bscal.mcbody.body.BodyPart;
 import me.bscal.mcbody.body.PartType;
@@ -12,9 +15,12 @@ public class BodyPlayer
 {
 
     private final Map<Integer, BodyPart> m_bodyParts = new HashMap<>();
+    private Player m_player;
 
-    public BodyPlayer()
+    public BodyPlayer(Player p)
     {
+        m_player = p;
+
         AddPart(new BodyPart(PartType.HEAD.id, 6.0));
         AddPart(new BodyPart(PartType.BODY.id, 14.0));
 
@@ -55,6 +61,29 @@ public class BodyPlayer
     public Map<Integer, BodyPart> GetParts()
     {
         return m_bodyParts;
+    }
+
+    public Player GetPlayer()
+    {
+        return m_player;
+    }
+
+    public void Serialize()
+    {
+        for (BodyPart part : m_bodyParts.values())
+        {
+            MCBody.Get().GetUsersFile().setData(m_player.getUniqueId().toString() + "." + part.GetID(),
+                    ConfigData.serializeObject(part));
+        }
+    }
+
+    public void Deserialize()
+    {
+        for (String str : MCBody.Get().GetUsersFile().getStringKeyList(m_player.getUniqueId().toString()))
+        {
+            BodyPart part = MCBody.Get().GetUsersFile().getData(str).deserialize(BodyPart.class);
+            AddPart(part);
+        }
     }
 
 }

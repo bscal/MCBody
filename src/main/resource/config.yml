@@ -1,9 +1,12 @@
+# Enable debug mode
+debug: true
+
+# Enable individual body part health pools for Players
+individualPlayerParts: false
+
+useMYSQL: false
 database:
   host: "127.0.0.1"
   database: "minecraft"
   user: "user"
   password: "password"
-
-debug: true
-
-individualPlayerParts: false

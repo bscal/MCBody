@@ -1,10 +1,8 @@
 package me.bscal.mcbody.entities.profiles;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.bukkit.entity.Drowned;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.PigZombie;
 import org.bukkit.entity.Piglin;
 import org.bukkit.entity.Pillager;
@@ -21,9 +19,8 @@ public class PlayerProfile extends MobProfile
 
     public PlayerProfile()
     {
-        super(2.0, 1.0, 0.75, 0.75, 2.0, Arrays.asList(new Class<?>[]
-        { Player.class, Zombie.class, PigZombie.class, Villager.class, Pillager.class, Piglin.class, Drowned.class
-        }));
+        super(2.0, 1.0, 0.75, 0.75, 2.0, Arrays.asList(Player.class, Zombie.class, PigZombie.class, Villager.class,
+                Pillager.class, Piglin.class, Drowned.class));
     }
 
     @Override

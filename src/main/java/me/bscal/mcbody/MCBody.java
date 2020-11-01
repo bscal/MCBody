@@ -1,11 +1,11 @@
 package me.bscal.mcbody;
 
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import gyurix.configfile.ConfigFile;
+import gyurix.mysql.MySQLDatabase;
 import me.bscal.mcbody.entities.EntityManager;
 import me.bscal.mcbody.entities.PlayerPartManager;
 import me.bscal.mcbody.listeners.CombatListeners;
@@ -22,12 +22,13 @@ public class MCBody extends JavaPlugin
 
     private static MCBody m_singleton;
 
-    private static final String CONSOLE_PREFIX = ChatColor.RED + "[MCBody]: ";
-    private static final String CONSOLE_INFO = CONSOLE_PREFIX + ChatColor.YELLOW;
-    private static final String CONSOLE_ERR = CONSOLE_PREFIX + ChatColor.BLUE;
+    private static final String CONSOLE_PREFIX = ChatColor.DARK_RED + "[MCBody]: ";
+    private static final String CONSOLE_INFO = CONSOLE_PREFIX + ChatColor.GOLD;
+    private static final String CONSOLE_ERR = CONSOLE_PREFIX + ChatColor.RED;
 
     private ConfigFile m_config;
-    private PluginManager m_pluginManager;
+    private ConfigFile m_userData;
+
     private EntityManager m_eMgr;
     private PlayerPartManager m_ppMgr;
 
@@ -38,23 +39,33 @@ public class MCBody extends JavaPlugin
         Logger = getLogger();
 
         m_config = new ConfigFile(new File(getDataFolder() + File.separator + "config.yml"));
+
+        if (m_config.getBoolean("useMYSQL"))
+        {
+            m_userData = new ConfigFile(GetDatabase());
+        }
+        else
+            m_userData = new ConfigFile(new File(getDataFolder() + File.separator + "user_data.yml"));
+
         Debug = m_config.getBoolean("debug");
 
-        m_pluginManager = getServer().getPluginManager();
+        PluginManager pluginManager = getServer().getPluginManager();
 
         Print(MessageFormat.format("======= MCBody starting (Debug: {0})... =======", Debug));
 
         m_eMgr = new EntityManager();
-        m_pluginManager.registerEvents(new CombatListeners(), this);
+        pluginManager.registerEvents(new CombatListeners(), this);
         Print("EntityManager started.");
 
         if (m_config.getBoolean("individualPlayerParts"))
         {
             // Enables health for individual body parts.
             m_ppMgr = new PlayerPartManager();
-            m_pluginManager.registerEvents(m_ppMgr, this);
+            pluginManager.registerEvents(m_ppMgr, this);
             Print("PlayerPartManager started.");
         }
+
+        Print("======= MCBody started! =======");
     }
 
     public static MCBody Get()
@@ -80,6 +91,11 @@ public class MCBody extends JavaPlugin
         return m_config;
     }
 
+    public ConfigFile GetUsersFile()
+    {
+        return m_userData;
+    }
+
     public EntityManager GetEntityManager()
     {
         return m_eMgr;
@@ -88,6 +104,15 @@ public class MCBody extends JavaPlugin
     public PlayerPartManager GetPlayerPartManager()
     {
         return m_ppMgr;
+    }
+
+    private MySQLDatabase GetDatabase()
+    {
+        MySQLDatabase db = new MySQLDatabase(m_config.getString("database.host"),
+                m_config.getString("database.database"), m_config.getString("database.user"),
+                m_config.getString("database.password"));
+        db.table = getName();
+        return db;
     }
 
 }
