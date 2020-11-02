@@ -41,19 +41,22 @@ public class EntityManager
 
         if (profile == null)
         {
-            MCBody.PrintErr("MobProfile in EntityManager was null.", true);
+            MCBody.PrintErr("MobProfile in EntityManager was null.", false);
             return;
         }
 
         // Call the correct function based on part.
         if (type == PartType.BODY)
             profile.OnDamageBody(evt, cause, dmg, type);
-        else if (type == PartType.HEAD)
-            profile.OnDamageHead(evt, cause, dmg, type);
-        else if (type == PartType.LEG_LEFT || type == PartType.LEG_RIGHT)
-            profile.OnDamageLeg(evt, cause, dmg, type);
-        else if (type == PartType.ARM_LEFT || type == PartType.ARM_RIGHT)
-            profile.OnDamageArm(evt, cause, dmg, type);
+        else
+            if (type == PartType.HEAD)
+                profile.OnDamageHead(evt, cause, dmg, type);
+            else
+                if (type == PartType.LEG_LEFT || type == PartType.LEG_RIGHT)
+                    profile.OnDamageLeg(evt, cause, dmg, type);
+                else
+                    if (type == PartType.ARM_LEFT || type == PartType.ARM_RIGHT)
+                        profile.OnDamageArm(evt, cause, dmg, type);
 
     }
 
