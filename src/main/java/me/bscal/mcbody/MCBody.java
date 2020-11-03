@@ -1,5 +1,6 @@
 package me.bscal.mcbody;
 
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -22,7 +23,6 @@ public class MCBody extends JavaPlugin
 
     private static MCBody m_singleton;
 
-    private static String CONSOLE_PREFIX = ChatColor.DARK_RED + "[MCBody]: ";
     private static final ChatColor CONSOLE_INFO = ChatColor.AQUA;
     private static final ChatColor CONSOLE_ERR = ChatColor.RED;
 
@@ -37,29 +37,28 @@ public class MCBody extends JavaPlugin
     {
         m_singleton = this;
         Logger = getLogger();
-        CONSOLE_PREFIX = MessageFormat.format("{0}[{1}{2}{0}] ",
-            ChatColor.GOLD, ChatColor.YELLOW, getName());
 
         saveDefaultConfig();
 
         m_config = new ConfigFile(new File(getDataFolder() + File.separator + "config.yml"));
 
-        if(m_config.getBoolean("useMYSQL"))
+        if(m_config.getBoolean("MySQLEnabled"))
         {
             m_userData = new ConfigFile(GetDatabase());
         }
         else m_userData = new ConfigFile(new File(getDataFolder() + File.separator + "user_data.yml"));
-        Debug = m_config.getBoolean("debug");
+        Debug = m_config.getBoolean("DebugModeEnabled");
 
         PluginManager pluginManager = getServer().getPluginManager();
 
         Print(MessageFormat.format("======= MCBody starting (Debug: {0})... =======", Debug));
 
         m_eMgr = new EntityManager();
+        m_eMgr.SetActive(MCBody.Get().GetConfigFile().getBoolean("EntityDamageEnabled"));
         pluginManager.registerEvents(new CombatListeners(), this);
         Print("EntityManager started.");
 
-        if(m_config.getBoolean("individualPlayerParts"))
+        if(m_config.getBoolean("PlayerPartsEnabled"))
         {
             // Enables health for individual body parts.
             m_ppMgr = new PlayerPartManager();
@@ -80,10 +79,21 @@ public class MCBody extends JavaPlugin
         Logger.info(CONSOLE_INFO + msg);
     }
 
+    public static void Print(Object... msg)
+    {
+        Logger.info(CONSOLE_INFO + StringUtils.join(msg, ", "));
+    }
+
+    public static void PrintFormat(String title, Object... msg)
+    {
+        Logger.info(CONSOLE_INFO + "======= Printing " + title + " =======\n\t");
+        Logger.info(CONSOLE_INFO + StringUtils.join(msg, ",\n\t"));
+    }
+
     public static void PrintErr(String msg, boolean disable)
     {
         Logger.severe(CONSOLE_ERR + msg);
-        if(disable) m_singleton.getServer().getPluginManager().disablePlugin(m_singleton);
+        if (disable) m_singleton.getServer().getPluginManager().disablePlugin(m_singleton);
     }
 
     public ConfigFile GetConfigFile()

@@ -4,6 +4,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
@@ -11,6 +12,7 @@ import me.bscal.mcbody.MCBody;
 import me.bscal.mcbody.body.PartType;
 import me.bscal.mcbody.entities.profiles.MobProfile;
 import me.bscal.mcbody.entities.profiles.PlayerProfile;
+import me.bscal.mcbody.events.MCBodyEntityDamageByEntityEvent;
 
 public class EntityManager
 {
@@ -26,7 +28,7 @@ public class EntityManager
         m_profiles.add(new PlayerProfile());
     }
 
-    public void HandleDamage(EntityDamageByEntityEvent evt, DamageCause cause, double dmg, PartType type)
+    public void HandleDamage(EntityDamageByEntityEvent evt, DamageCause cause, double dmg, PartType type, CombatData data)
     {
         if (evt == null || type == null)
         {
@@ -45,19 +47,23 @@ public class EntityManager
             return;
         }
 
+        MCBodyEntityDamageByEntityEvent customEvent = new MCBodyEntityDamageByEntityEvent(evt, type, data);
+        Bukkit.getPluginManager().callEvent(customEvent);
+
+        if (MCBody.Debug)
+            MCBody.Print("MCBodyEntityDamageByEntityEvent Called!");
+
+        if (customEvent.isCancelled()) return;
+
         // Call the correct function based on part.
         if (type == PartType.BODY)
             profile.OnDamageBody(evt, cause, dmg, type);
-        else
-            if (type == PartType.HEAD)
-                profile.OnDamageHead(evt, cause, dmg, type);
-            else
-                if (type == PartType.LEG_LEFT || type == PartType.LEG_RIGHT)
-                    profile.OnDamageLeg(evt, cause, dmg, type);
-                else
-                    if (type == PartType.ARM_LEFT || type == PartType.ARM_RIGHT)
-                        profile.OnDamageArm(evt, cause, dmg, type);
-
+        else if (type == PartType.HEAD)
+            profile.OnDamageHead(evt, cause, dmg, type);
+        else if (type == PartType.LEG_LEFT || type == PartType.LEG_RIGHT)
+            profile.OnDamageLeg(evt, cause, dmg, type);
+        else if (type == PartType.ARM_LEFT || type == PartType.ARM_RIGHT)
+            profile.OnDamageArm(evt, cause, dmg, type);
     }
 
     public MobProfile FindProfile(final EntityDamageByEntityEvent evt)
@@ -75,7 +81,7 @@ public class EntityManager
         m_isActive = active;
     }
 
-    public boolean GetActive()
+    public boolean IsActive()
     {
         return m_isActive;
     }
