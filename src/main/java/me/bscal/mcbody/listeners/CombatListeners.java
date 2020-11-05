@@ -3,6 +3,7 @@ package me.bscal.mcbody.listeners;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -32,6 +33,9 @@ public class CombatListeners implements Listener
     @EventHandler
     public void OnEntityDamageByEntityEvent(EntityDamageByEntityEvent e)
     {
+        if (e.getEntity().isDead()  || !(e.getEntity() instanceof LivingEntity)) return;
+        if (!(e.getDamager() instanceof LivingEntity)) return;
+
         LivingEntity damager = (LivingEntity) e.getDamager();
         LivingEntity damagee = (LivingEntity) e.getEntity();
         DamageCause cause = e.getCause();
@@ -52,6 +56,9 @@ public class CombatListeners implements Listener
             PartType type = GetPartTypeFromLoc(offset, m_data.yaw);
             if (MCBody.Debug)
                 MCBody.PrintFormat("CombatListener", cause, damage, type, m_data.yaw, m_data.side, offset);
+
+            if (damagee instanceof Player || MCBody.Get().GetPlayerPartManager().IsActive())
+                MCBody.Get().GetPlayerPartManager().GetPlayer((Player) damagee).HandleDamage(e, type, m_data);
 
             if (MCBody.Get().GetEntityManager().IsActive())
                 MCBody.Get().GetEntityManager().HandleDamage(e, cause, damage, type, m_data);

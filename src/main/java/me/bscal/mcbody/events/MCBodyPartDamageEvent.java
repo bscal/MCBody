@@ -5,17 +5,18 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
+import me.bscal.mcbody.body.BodyPart;
 import me.bscal.mcbody.body.PartType;
 import me.bscal.mcbody.entities.CombatData;
 
-public class MCBodyEntityDamageByEntityEvent extends Event implements Cancellable
+public class MCBodyPartDamageEvent extends Event implements Cancellable
 {
-
-    public MCBodyEntityDamageByEntityEvent(EntityDamageByEntityEvent evt, PartType type, CombatData data)
+    public MCBodyPartDamageEvent(EntityDamageByEntityEvent evt, PartType type, CombatData data, BodyPart bodyPart)
     {
         m_evt = evt;
         m_type = type;
         m_data = data;
+        m_bodyPart = bodyPart;
     }
 
     public boolean isCancelled()
@@ -58,11 +59,17 @@ public class MCBodyEntityDamageByEntityEvent extends Event implements Cancellabl
         m_data = data;
     }
 
+    public BodyPart GetBodyPart()
+    {
+        return m_bodyPart;
+    }
+
     // Private
 
     private EntityDamageByEntityEvent m_evt;
     private PartType m_type;
     private CombatData m_data;
+    private BodyPart m_bodyPart;
 
     private boolean m_isCancelled;
 
@@ -77,6 +84,4 @@ public class MCBodyEntityDamageByEntityEvent extends Event implements Cancellabl
     {
         return HANDLERS;
     }
-
-
 }

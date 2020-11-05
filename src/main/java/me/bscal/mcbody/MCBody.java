@@ -2,6 +2,7 @@ package me.bscal.mcbody;
 
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -20,9 +21,11 @@ public class MCBody extends JavaPlugin
 
     public static Logger Logger;
     public static boolean Debug;
+    public static ConsoleCommandSender CS;
 
     private static MCBody m_singleton;
 
+    private static String CONSOLE_PREFIX;
     private static final ChatColor CONSOLE_INFO = ChatColor.AQUA;
     private static final ChatColor CONSOLE_ERR = ChatColor.RED;
 
@@ -37,6 +40,8 @@ public class MCBody extends JavaPlugin
     {
         m_singleton = this;
         Logger = getLogger();
+        CS = getServer().getConsoleSender();
+        CONSOLE_PREFIX = MessageFormat.format("{1}[{2}{0}{1}]: ", getName(), ChatColor.DARK_PURPLE, ChatColor.LIGHT_PURPLE);
 
         saveDefaultConfig();
 
@@ -58,10 +63,11 @@ public class MCBody extends JavaPlugin
         pluginManager.registerEvents(new CombatListeners(), this);
         Print("EntityManager started.");
 
+        m_ppMgr = new PlayerPartManager();
         if(m_config.getBoolean("PlayerPartsEnabled"))
         {
             // Enables health for individual body parts.
-            m_ppMgr = new PlayerPartManager();
+            m_ppMgr.SetActive(true);
             pluginManager.registerEvents(m_ppMgr, this);
             Print("PlayerPartManager started.");
         }
@@ -76,23 +82,23 @@ public class MCBody extends JavaPlugin
 
     public static void Print(String msg)
     {
-        Logger.info(CONSOLE_INFO + msg);
+        CS.sendMessage(CONSOLE_PREFIX + CONSOLE_INFO + msg);
     }
 
     public static void Print(Object... msg)
     {
-        Logger.info(CONSOLE_INFO + StringUtils.join(msg, ", "));
+        CS.sendMessage(CONSOLE_PREFIX + CONSOLE_INFO + StringUtils.join(msg, ", "));
     }
 
     public static void PrintFormat(String title, Object... msg)
     {
-        Logger.info(CONSOLE_INFO + "======= Printing " + title + " =======\n\t");
-        Logger.info(CONSOLE_INFO + StringUtils.join(msg, ",\n\t"));
+        CS.sendMessage(CONSOLE_PREFIX + CONSOLE_INFO + "======= Printing " + title + " =======\n\t");
+        CS.sendMessage(CONSOLE_PREFIX + CONSOLE_INFO + StringUtils.join(msg, ",\n\t"));
     }
 
     public static void PrintErr(String msg, boolean disable)
     {
-        Logger.severe(CONSOLE_ERR + msg);
+        CS.sendMessage(CONSOLE_PREFIX + CONSOLE_ERR + msg);
         if (disable) m_singleton.getServer().getPluginManager().disablePlugin(m_singleton);
     }
 

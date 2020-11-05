@@ -4,17 +4,21 @@ import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 import gyurix.configfile.ConfigData;
 import me.bscal.mcbody.MCBody;
 import me.bscal.mcbody.body.BodyPart;
 import me.bscal.mcbody.body.PartType;
+import me.bscal.mcbody.events.MCBodyPartDamageEvent;
 
 public class BodyPlayer
 {
 
     private final Map<Integer, BodyPart> m_bodyParts = new HashMap<>();
+    private final Map<BodyPart, int[]> m_partModifiers = new HashMap<>();
     private Player m_player;
 
     public BodyPlayer(Player p)
@@ -31,9 +35,51 @@ public class BodyPlayer
         AddPart(new BodyPart(PartType.ARM_RIGHT.id, 8.0));
     }
 
+    public void HandleDamage(EntityDamageByEntityEvent e, PartType type, CombatData data)
+    {
+        if (type == null || !m_bodyParts.containsKey(type.id))
+            MCBody.PrintErr("PartType is null or BodyPlayer does not contain part id. " + type, false);
+
+        BodyPart bodyPart = m_bodyParts.get(type.id);
+        if (bodyPart == null) return;
+
+        MCBodyPartDamageEvent evt = new MCBodyPartDamageEvent(e, type, data, bodyPart);
+        Bukkit.getPluginManager().callEvent(evt);
+
+        if (evt.isCancelled()) return;
+
+        if (m_partModifiers.containsKey(bodyPart))
+        {
+            for (int id : m_partModifiers.get(bodyPart))
+            {
+                MCBody.Print(id);
+            }
+        }
+    }
+
     public void AddPart(BodyPart part)
     {
         m_bodyParts.put(part.GetID(), part);
+    }
+
+    public void SetHP(PartType type, double hp)
+    {
+        m_bodyParts.get(type.id).SetHP(hp);
+    }
+
+    public void AddHP(PartType type, double hp)
+    {
+        m_bodyParts.get(type.id).AddHP(hp);
+    }
+
+    public void Heal(PartType type)
+    {
+        m_bodyParts.get(type.id).Heal();
+    }
+
+    public void HealAll()
+    {
+        m_bodyParts.forEach((id, part) -> part.Heal());
     }
 
     public BodyPart GetPart(int id)

@@ -11,6 +11,8 @@ public class PlayerPartManager implements Listener
 {
     private final Map<UUID, BodyPlayer> m_players = new HashMap<>();
 
+    private boolean m_isActive;
+
     public void AddPlayer(final Player p, final BodyPlayer body)
     {
         if (p == null || body == null)
@@ -41,6 +43,16 @@ public class PlayerPartManager implements Listener
     public boolean ContainsPlayer(final Player player)
     {
         return m_players.containsKey(player.getUniqueId());
+    }
+
+    public void SetActive(boolean active)
+    {
+        m_isActive = active;
+    }
+
+    public boolean IsActive()
+    {
+        return m_isActive;
     }
 
 }
