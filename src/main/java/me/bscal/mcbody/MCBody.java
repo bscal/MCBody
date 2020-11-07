@@ -6,11 +6,8 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import gyurix.commands.plugin.PluginCommands;
 import gyurix.configfile.ConfigFile;
 import gyurix.mysql.MySQLDatabase;
-import me.bscal.mcbody.cmds.MCBodyCmd;
-import me.bscal.mcbody.cmds.Info;
 import me.bscal.mcbody.entities.EntityManager;
 import me.bscal.mcbody.entities.PlayerPartManager;
 import me.bscal.mcbody.listeners.CombatListeners;
@@ -50,8 +47,6 @@ public class MCBody extends JavaPlugin
         CONSOLE_PREFIX = MessageFormat.format("{1}[{2}{0}{1}]: ", getName(), ChatColor.DARK_PURPLE, ChatColor.LIGHT_PURPLE);
 
         saveDefaultConfig();
-
-        PluginCommands.registerCommands(this, MCBodyCmd.class, Info.class);
 
         m_config = new ConfigFile(new File(getDataFolder() + File.separator + "config.yml"));
 
