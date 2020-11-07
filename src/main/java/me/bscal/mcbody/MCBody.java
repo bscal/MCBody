@@ -6,11 +6,16 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import gyurix.commands.plugin.PluginCommands;
 import gyurix.configfile.ConfigFile;
 import gyurix.mysql.MySQLDatabase;
+import me.bscal.mcbody.cmds.MCBodyCmd;
+import me.bscal.mcbody.cmds.Info;
 import me.bscal.mcbody.entities.EntityManager;
 import me.bscal.mcbody.entities.PlayerPartManager;
 import me.bscal.mcbody.listeners.CombatListeners;
+import me.bscal.mcbody.listeners.PlayerListeners;
+import me.bscal.mcbody.ui.BodyPartUI;
 
 import java.io.File;
 import java.text.MessageFormat;
@@ -34,6 +39,7 @@ public class MCBody extends JavaPlugin
 
     private EntityManager m_eMgr;
     private PlayerPartManager m_ppMgr;
+    private BodyPartUI m_bodyUI;
 
     @Override
     public void onEnable()
@@ -45,22 +51,24 @@ public class MCBody extends JavaPlugin
 
         saveDefaultConfig();
 
+        PluginCommands.registerCommands(this, MCBodyCmd.class, Info.class);
+
         m_config = new ConfigFile(new File(getDataFolder() + File.separator + "config.yml"));
 
         if(m_config.getBoolean("MySQLEnabled"))
-        {
             m_userData = new ConfigFile(GetDatabase());
-        }
-        else m_userData = new ConfigFile(new File(getDataFolder() + File.separator + "user_data.yml"));
+        else
+            m_userData = new ConfigFile(new File(getDataFolder() + File.separator + "user_data.yml"));
         Debug = m_config.getBoolean("DebugModeEnabled");
 
-        PluginManager pluginManager = getServer().getPluginManager();
+        PluginManager pm = getServer().getPluginManager();
 
         Print(MessageFormat.format("======= MCBody starting (Debug: {0})... =======", Debug));
 
         m_eMgr = new EntityManager();
         m_eMgr.SetActive(MCBody.Get().GetConfigFile().getBoolean("EntityDamageEnabled"));
-        pluginManager.registerEvents(new CombatListeners(), this);
+        pm.registerEvents(new CombatListeners(), this);
+        pm.registerEvents(new PlayerListeners(), this);
         Print("EntityManager started.");
 
         m_ppMgr = new PlayerPartManager();
@@ -68,7 +76,8 @@ public class MCBody extends JavaPlugin
         {
             // Enables health for individual body parts.
             m_ppMgr.SetActive(true);
-            pluginManager.registerEvents(m_ppMgr, this);
+            pm.registerEvents(m_ppMgr, this);
+            m_bodyUI = new BodyPartUI();
             Print("PlayerPartManager started.");
         }
 
@@ -120,6 +129,11 @@ public class MCBody extends JavaPlugin
     public PlayerPartManager GetPlayerPartManager()
     {
         return m_ppMgr;
+    }
+
+    public BodyPartUI getBodyPartUI()
+    {
+        return m_bodyUI;
     }
 
     private MySQLDatabase GetDatabase()

@@ -1,4 +1,4 @@
-package me.bscal.mcbody.healing;
+package me.bscal.mcbody.events.healing;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Cancellable;

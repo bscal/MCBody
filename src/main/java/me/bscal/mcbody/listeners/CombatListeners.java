@@ -57,7 +57,7 @@ public class CombatListeners implements Listener
             if (MCBody.Debug)
                 MCBody.PrintFormat("CombatListener", cause, damage, type, m_data.yaw, m_data.side, offset);
 
-            if (damagee instanceof Player || MCBody.Get().GetPlayerPartManager().IsActive())
+            if (damagee instanceof Player && MCBody.Get().GetPlayerPartManager().IsActive())
                 MCBody.Get().GetPlayerPartManager().GetPlayer((Player) damagee).HandleDamage(e, type, m_data);
 
             if (MCBody.Get().GetEntityManager().IsActive())

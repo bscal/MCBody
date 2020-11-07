@@ -37,7 +37,8 @@ public class PlayerListeners implements Listener
     @EventHandler
     public void OnRespawn(PlayerRespawnEvent e)
     {
-
+        BodyPlayer p = MCBody.Get().GetPlayerPartManager().GetPlayer(e.getPlayer());
+        p.HealAll();
     }
 
 }

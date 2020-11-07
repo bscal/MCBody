@@ -1,48 +1,65 @@
 package me.bscal.mcbody.ui;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.entity.Item;
-import org.bukkit.inventory.Inventory;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import gyurix.inventory.CustomGUI;
+import gyurix.inventory.CloseableGUI;
 import gyurix.inventory.GUIConfig;
-import gyurix.inventory.PagedConfig;
-import gyurix.inventory.StaticItem;
+import me.bscal.mcbody.MCBody;
+import me.bscal.mcbody.body.BodyPart;
+import me.bscal.mcbody.body.PartType;
+import me.bscal.mcbody.entities.BodyPlayer;
 
 public class BodyPartUI
 {
-    GUIConfig bodyGUI;
+    final GUIConfig m_bodyGUI = new GUIConfig();
+    final List<VarItem> m_elements = new ArrayList<VarItem>(4);
 
-    VarItem headItem;
-    VarItem bodyItem;
-    VarItem leftLegItem;
-    VarItem rightLegItem;
+    static final int HEAD       = PartType.HEAD.id;
+    static final int BODY       = PartType.BODY.id;
+    static final int LEFT_LEG   = PartType.LEG_LEFT.id;
+    static final int RIGHT_LEG  = PartType.LEG_RIGHT.id;
 
     public BodyPartUI()
     {
-        bodyGUI = new GUIConfig();
-        bodyGUI.title = "Player Health";
-        bodyGUI.size = 6 * 9;
-        bodyGUI.separator = new ItemStack(Material.AIR);
+        m_bodyGUI.title = "Player Health";
+        m_bodyGUI.size = 6 * 9;
+        m_bodyGUI.separator = new ItemStack(Material.AIR);
 
-        headItem = new VarItem(3, "Head");
-        bodyItem = new VarItem(3 + 9, "Body");
-        leftLegItem = new VarItem(2 + 9 * 2, "Left Leg");
-        rightLegItem = new VarItem(4 + 9 * 2, "Right Leg");
+        m_elements.add(new VarItem(3, "Head"));
+        m_elements.add(new VarItem(3 + 9, "Body"));
+        m_elements.add(new VarItem(2 + 9 * 2, "Left Leg"));
+        m_elements.add(new VarItem(4 + 9 * 2, "Right Leg"));
     }
 
+    public void open(Player p)
+    {
+        if (p == null || !MCBody.Get().GetPlayerPartManager().IsActive())
+            return;
+
+        final BodyPlayer body = MCBody.Get().GetPlayerPartManager().GetPlayer(p);
+        for (int i = 0; i < m_elements.size(); i++)
+        {
+            BodyPart part = body.GetPart(i);
+            m_bodyGUI.items.put(m_elements.get(i).slot, m_elements.get(i).buildItem(part.GetHP(), 0, part.GetMaxHP()));
+        }
+
+        p.openInventory(m_bodyGUI.getInventory(new CloseableGUI(p)));
+    }
 
     public class VarItem
     {
         final int slot;
         final String name;
+        final Material min, third, half, two_third, max;
         ItemStack item;
-        Material min, third, half, two_third, max;
 
         public VarItem(int slot, String name)
         {
@@ -56,29 +73,18 @@ public class BodyPartUI
             item = new ItemStack(max);
         }
 
-        public void set(Inventory inv, int value, int min, int max)
+        public ItemStack buildItem(double val, double min, double max)
         {
-            double normal = (value - min / max - min);
-            inv.setItem(slot, buildItem(normal, max));
-        }
-
-        public void set(Inventory inv, double value, double min, double max)
-        {
-            double normal = (value - min / max - min);
-            inv.setItem(slot, buildItem(normal, max));
-        }
-
-        public ItemStack buildItem(double val, double max)
-        {
+            val = val - min / max - min;
             item.setType(calcItem(val));
-            String s = MessageFormat.format("{3}{0} {4}| {3}HP{4}: {5}{1}{4}/{5}{2}", name, val, max, ChatColor.GRAY, ChatColor.DARK_GRAY, ChatColor.GREEN)
+            String s = MessageFormat.format("{3}{0} {4}| {3}HP{4}: {5}{1}{4}/{5}{2}", name, val, max, ChatColor.GRAY, ChatColor.DARK_GRAY, ChatColor.GREEN);
             ItemMeta im = item.getItemMeta();
             im.setDisplayName(s);
             item.setItemMeta(im);
             return item;
         }
 
-        public Material calcItem(double val)
+        protected Material calcItem(double val)
         {
             if (val <= 0) return min;
             else if (val >= 1) return max;
@@ -87,5 +93,4 @@ public class BodyPartUI
             else return half;
         }
     }
-
 }
