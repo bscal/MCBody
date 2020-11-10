@@ -1,6 +1,9 @@
 package me.bscal.mcbody.listeners;
 
+import com.bergerkiller.bukkit.common.utils.FaceUtil;
+
 import org.bukkit.Location;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -42,7 +45,7 @@ public class CombatListeners implements Listener
         double damage = e.getDamage();
 
         m_data.side = GetSide(damagee, damager);
-        m_data.yaw = GetYaw(damagee);
+        m_data.face = FaceUtil.getDirection(damagee.getLocation().getDirection(), false);
 
         m_data.distance = damager.getLocation().distance(damagee.getLocation());
         Location loc = damager.getEyeLocation();
@@ -53,9 +56,9 @@ public class CombatListeners implements Listener
             // Hit
             Location hitLoc = m_data.ray.getHurtLocation();
             Location offset = damagee.getLocation().subtract(hitLoc);
-            PartType type = GetPartTypeFromLoc(offset, m_data.yaw);
+            PartType type = GetPartTypeFromLoc(offset, m_data.face);
             if (MCBody.Debug)
-                MCBody.PrintFormat("CombatListener", cause, damage, type, m_data.yaw, m_data.side, offset);
+                MCBody.PrintFormat("CombatListener", cause, damage, type, m_data.face, m_data.side, offset);
 
             if (damagee instanceof Player && MCBody.Get().GetPlayerPartManager().IsActive())
                 MCBody.Get().GetPlayerPartManager().GetPlayer((Player) damagee).HandleDamage(e, type, m_data);
@@ -65,7 +68,7 @@ public class CombatListeners implements Listener
         }
     }
 
-    private PartType GetPartTypeFromLoc(final Location offset, final Yaw yaw)
+    private PartType GetPartTypeFromLoc(final Location offset, final BlockFace face)
     {
         // heights .4 .8 .6 , arms .6 / width .8 , arms .4
         if(offset.getY() < -HEAD_OFFSET) // Head shot
@@ -73,15 +76,15 @@ public class CombatListeners implements Listener
 
         if(offset.getY() > -LEG_OFFSET) // Legs
         {
-            if (yaw == Yaw.NORTH && offset.getX() > 0) return PartType.LEG_LEFT;
-            else if (yaw == Yaw.NORTH && offset.getX() < 0) return PartType.LEG_RIGHT;
-            else if (yaw == Yaw.SOUTH && offset.getX() < 0) return PartType.LEG_LEFT;
-            else if (yaw == Yaw.SOUTH && offset.getX() > 0) return PartType.LEG_RIGHT;
+            if (face == BlockFace.NORTH && offset.getX() > 0) return PartType.LEG_LEFT;
+            else if (face == BlockFace.NORTH && offset.getX() < 0) return PartType.LEG_RIGHT;
+            else if (face == BlockFace.SOUTH && offset.getX() < 0) return PartType.LEG_LEFT;
+            else if (face == BlockFace.SOUTH && offset.getX() > 0) return PartType.LEG_RIGHT;
 
-            else if (yaw == Yaw.EAST && offset.getZ() < 0) return PartType.LEG_LEFT;
-            else if (yaw == Yaw.EAST && offset.getZ() > 0) return PartType.LEG_RIGHT;
-            else if (yaw == Yaw.WEST && offset.getZ() < 0) return PartType.LEG_LEFT;
-            else if (yaw == Yaw.WEST && offset.getZ() > 0) return PartType.LEG_RIGHT;
+            else if (face == BlockFace.EAST && offset.getZ() < 0) return PartType.LEG_LEFT;
+            else if (face == BlockFace.EAST && offset.getZ() > 0) return PartType.LEG_RIGHT;
+            else if (face == BlockFace.WEST && offset.getZ() < 0) return PartType.LEG_LEFT;
+            else if (face == BlockFace.WEST && offset.getZ() > 0) return PartType.LEG_RIGHT;
         }
         // Body
         return PartType.BODY;
@@ -90,11 +93,11 @@ public class CombatListeners implements Listener
     private static Side GetSide(final Entity ent0, final Entity ent1)
     {
         double yawDiff = GetYawDifference(ent0, ent1);
-        if (yawDiff > 67.5 || yawDiff < 67.5 + 45)
+        if (yawDiff > 67.5 && yawDiff < 67.5 + 45)
             return Side.LEFT;
-        else if (yawDiff >= 67.5 + 45 || yawDiff <= 67.5 + 45 + 135)
+        else if (yawDiff >= 67.5 + 45 && yawDiff <= 67.5 + 45 + 135)
             return Side.BACK;
-        else if (yawDiff > 67.5 + 45 + 135 || yawDiff < 67.5 + 45 + 135 + 45)
+        else if (yawDiff > 67.5 + 45 + 135 && yawDiff < 67.5 + 45 + 135 + 45)
             return Side.RIGHT;
         return Side.FRONT;
     }
