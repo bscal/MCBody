@@ -5,7 +5,7 @@ Contains an API to easily work with and hook into these events.
 The plugin is built 1.16.3 I do not know compatibility with previous version, however no NMS is used.
 
 Uses the following libraries:
-[TheAPI](https://github.com/TheDevTec/TheAPI), [BKCommonLib](https://github.com/bergerhealer/BKCommonLib)
+[TheAPI](https://github.com/TheDevTec/TheAPI), [BKCommonLib](https://github.com/bergerhealer/BKCommonLib), [command-api](https://github.com/TozyMC/commands-api)
 and [RaycastAPI](https://www.spigotmc.org/resources/api-raycastapi-create-guns-get-towards-entity-block.77541/) libraries.
 
 The plugin has not been fully tested or complete.
