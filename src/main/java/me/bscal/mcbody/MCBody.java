@@ -6,22 +6,22 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import gyurix.configfile.ConfigFile;
-import gyurix.mysql.MySQLDatabase;
+import me.DevTec.TheAPI.ConfigAPI.Config;
+import me.bscal.mcbody.cmds.GUICommand;
+import me.bscal.mcbody.cmds.RootCommand;
 import me.bscal.mcbody.entities.EntityManager;
 import me.bscal.mcbody.entities.PlayerPartManager;
 import me.bscal.mcbody.listeners.CombatListeners;
 import me.bscal.mcbody.listeners.PlayerListeners;
 import me.bscal.mcbody.ui.BodyPartUI;
+import xyz.tozymc.spigot.api.command.Command;
+import xyz.tozymc.spigot.api.command.CommandController;
 
 import java.io.File;
 import java.text.MessageFormat;
-import java.util.logging.Logger;
 
 public class MCBody extends JavaPlugin
 {
-
-    public static Logger Logger;
     public static boolean Debug;
     public static ConsoleCommandSender CS;
 
@@ -31,8 +31,8 @@ public class MCBody extends JavaPlugin
     private static final ChatColor CONSOLE_INFO = ChatColor.AQUA;
     private static final ChatColor CONSOLE_ERR = ChatColor.RED;
 
-    private ConfigFile m_config;
-    private ConfigFile m_userData;
+    private CommandController m_cmdCtrl;
+    private Config m_config;
 
     private EntityManager m_eMgr;
     private PlayerPartManager m_ppMgr;
@@ -42,19 +42,16 @@ public class MCBody extends JavaPlugin
     public void onEnable()
     {
         m_singleton = this;
-        Logger = getLogger();
         CS = getServer().getConsoleSender();
         CONSOLE_PREFIX = MessageFormat.format("{1}[{2}{0}{1}]: ", getName(), ChatColor.DARK_PURPLE, ChatColor.LIGHT_PURPLE);
 
         saveDefaultConfig();
-
-        m_config = new ConfigFile(new File(getDataFolder() + File.separator + "config.yml"));
-
-        if(m_config.getBoolean("MySQLEnabled"))
-            m_userData = new ConfigFile(GetDatabase());
-        else
-            m_userData = new ConfigFile(new File(getDataFolder() + File.separator + "user_data.yml"));
+        m_config = new Config(getName() + File.separator + "config.yml");
         Debug = m_config.getBoolean("DebugModeEnabled");
+
+        m_cmdCtrl = new CommandController(this);
+        Command root = m_cmdCtrl.addCommand(new RootCommand());
+        m_cmdCtrl.addCommand(new GUICommand(root));
 
         PluginManager pm = getServer().getPluginManager();
 
@@ -72,7 +69,6 @@ public class MCBody extends JavaPlugin
             // Enables health for individual body parts.
             m_ppMgr.SetActive(true);
             pm.registerEvents(m_ppMgr, this);
-            m_bodyUI = new BodyPartUI();
             Print("PlayerPartManager started.");
         }
 
@@ -96,8 +92,12 @@ public class MCBody extends JavaPlugin
 
     public static void PrintFormat(String title, Object... msg)
     {
-        CS.sendMessage(CONSOLE_PREFIX + CONSOLE_INFO + "======= Printing " + title + " =======\n\t");
-        CS.sendMessage(CONSOLE_PREFIX + CONSOLE_INFO + StringUtils.join(msg, ",\n\t"));
+        CS.sendMessage(CONSOLE_PREFIX + CONSOLE_INFO + "======= Printing " + title + " =======\n\t" + StringUtils.join(msg, ",\n\t"));
+    }
+
+    public static void PrintErr(String msg)
+    {
+        PrintErr(msg, false);
     }
 
     public static void PrintErr(String msg, boolean disable)
@@ -106,14 +106,9 @@ public class MCBody extends JavaPlugin
         if (disable) m_singleton.getServer().getPluginManager().disablePlugin(m_singleton);
     }
 
-    public ConfigFile GetConfigFile()
+    public Config GetConfigFile()
     {
         return m_config;
-    }
-
-    public ConfigFile GetUsersFile()
-    {
-        return m_userData;
     }
 
     public EntityManager GetEntityManager()
@@ -129,17 +124,6 @@ public class MCBody extends JavaPlugin
     public BodyPartUI getBodyPartUI()
     {
         return m_bodyUI;
-    }
-
-    private MySQLDatabase GetDatabase()
-    {
-        MySQLDatabase db = new MySQLDatabase(m_config.getString("database.host"),
-            m_config.getString("database.database"),
-            m_config.getString("database.user"),
-            m_config.getString("database.password"));
-
-        db.table = getName();
-        return db;
     }
 
 }

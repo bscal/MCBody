@@ -6,7 +6,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
-import gyurix.configfile.ConfigData;
+import me.DevTec.TheAPI.Utils.DataKeeper.User;
 import me.bscal.mcbody.MCBody;
 import me.bscal.mcbody.entities.BodyPlayer;
 
@@ -16,11 +16,11 @@ public class PlayerListeners implements Listener
     @EventHandler
     public void OnJoin(PlayerJoinEvent e)
     {
-        ConfigData data = MCBody.Get().GetUsersFile().getData(e.getPlayer().getUniqueId().toString());
+        User user = new User(e.getPlayer());
         BodyPlayer body = new BodyPlayer(e.getPlayer());
-        if (!data.isEmpty())
+        if (user.data().isKey("bodyparts"))
         {
-            body.Deserialize();
+            body.Deserialize(user);
         }
         MCBody.Get().GetPlayerPartManager().AddPlayer(e.getPlayer(), body);
     }
@@ -28,10 +28,10 @@ public class PlayerListeners implements Listener
     @EventHandler
     public void OnExit(PlayerQuitEvent e)
     {
+        User user = new User(e.getPlayer());
         BodyPlayer p = MCBody.Get().GetPlayerPartManager().GetPlayer(e.getPlayer());
-        p.Serialize();
-        MCBody.Get().GetUsersFile().save();
-        MCBody.Get().GetPlayerPartManager().RemovePlayer(e.getPlayer());
+        p.Serialize(user);
+        user.save();
     }
 
     @EventHandler

@@ -8,7 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-import gyurix.configfile.ConfigData;
+import me.DevTec.TheAPI.Utils.DataKeeper.User;
 import me.bscal.mcbody.MCBody;
 import me.bscal.mcbody.body.BodyPart;
 import me.bscal.mcbody.body.PartType;
@@ -86,7 +86,7 @@ public class BodyPlayer
     {
         if (!m_bodyParts.containsKey(id))
         {
-            MCBody.Logger.severe(MessageFormat.format("BodyPart map does not contain id: {0}.", id));
+            MCBody.PrintErr(MessageFormat.format("BodyPart map does not contain id: {0}.", id), false);
             return null;
         }
 
@@ -97,7 +97,7 @@ public class BodyPlayer
     {
         if (name == null || PartType.valueOf(name.toUpperCase()) == null)
         {
-            MCBody.Logger.severe(MessageFormat.format("PartType does not contain type: {0}.", name));
+            MCBody.PrintErr(MessageFormat.format("PartType does not contain type: {0}.", name), false);
             return null;
         }
 
@@ -114,21 +114,26 @@ public class BodyPlayer
         return m_player;
     }
 
-    public void Serialize()
+    public void Serialize(User user)
     {
         for (BodyPart part : m_bodyParts.values())
         {
-            MCBody.Get().GetUsersFile().setData(m_player.getUniqueId().toString() + "." + part.GetID(),
-                    ConfigData.serializeObject(part));
+            user.data().set("bodyparts." + part.GetID(), part.GetHP());
         }
     }
 
-    public void Deserialize()
+    public void Deserialize(User user)
     {
-        for (String str : MCBody.Get().GetUsersFile().getStringKeyList(m_player.getUniqueId().toString()))
+        for (String str : user.data().getKeys("bodyparts"))
         {
-            BodyPart part = MCBody.Get().GetUsersFile().getData(str).deserialize(BodyPart.class);
-            AddPart(part);
+            try {
+                GetPart(Integer.parseInt(str)).SetHP(user.data().getInt("bodyparts." + str));
+            }
+            catch (NumberFormatException e) {
+                e.printStackTrace();
+                return;
+            }
+
         }
     }
 

@@ -4,13 +4,16 @@ import me.bscal.mcbody.utils.MathUtils;
 
 public class BodyPart
 {
-    private final int m_id;
+    private int m_id;
 
     private double m_maxHp;
-    private double m_hp;
     private double m_dmgMultiplier;
 
+    private double m_hp;
+
     private static final double MIN_HP = 0;
+
+    protected BodyPart() {}
 
     public BodyPart(int id, double maxHp)
     {
