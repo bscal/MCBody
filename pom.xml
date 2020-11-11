@@ -38,7 +38,7 @@
 		<dependency>
 		    <groupId>com.destroystokyo.paper</groupId>
 		    <artifactId>paper-api</artifactId>
-		    <version>1.16.3-R0.1-SNAPSHOT</version>
+		    <version>1.16.4-R0.1-SNAPSHOT</version>
 		    <scope>provided</scope>
 		</dependency>
     <dependency>
@@ -47,12 +47,6 @@
       <version>1.0.0</version>
       <scope>system</scope>
       <systemPath>${pom.basedir}/vendor/RaycastAPI/RaycastAPI.jar</systemPath>
-    </dependency>
-    <dependency>
-        <groupId>com.bergerkiller.bukkit</groupId>
-        <artifactId>BKCommonLib</artifactId>
-        <version>1.16.4-v2</version>
-        <scope>provided</scope>
     </dependency>
      <dependency>
         <groupId>me.DevTec.TheAPI</groupId>

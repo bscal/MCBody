@@ -1,7 +1,5 @@
 package me.bscal.mcbody.listeners;
 
-import com.bergerkiller.bukkit.common.utils.FaceUtil;
-
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
@@ -11,6 +9,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.util.Vector;
 
 import fr.loisduplain.api.raycast.*;
 import fr.loisduplain.api.raycast.Raycast.RaycastType;
@@ -20,6 +19,14 @@ import me.bscal.mcbody.entities.CombatData;
 
 public class CombatListeners implements Listener
 {
+
+    private static final BlockFace[] AXIS = new BlockFace[4];
+    private static final BlockFace[] RADIAL = {BlockFace.WEST, BlockFace.NORTH_WEST, BlockFace.NORTH, BlockFace.NORTH_EAST, BlockFace.EAST, BlockFace.SOUTH_EAST, BlockFace.SOUTH, BlockFace.SOUTH_WEST};
+    static {
+        for (int i = 0; i < AXIS.length; i++) {
+            AXIS[i] = RADIAL[i << 1];
+        }
+    }
 
     private static final double RAY_LENGTH = 0.2;
 
@@ -45,7 +52,10 @@ public class CombatListeners implements Listener
         double damage = e.getDamage();
 
         m_data.side = GetSide(damagee, damager);
-        m_data.face = FaceUtil.getDirection(damagee.getLocation().getDirection(), false);
+
+        Vector moveVec = damagee.getLocation().getDirection();
+        float angle = (float)Math.atan2(moveVec.getZ(), moveVec.getBlockX()) - 180f;
+        m_data.face = AXIS[Math.round(angle / 90f) & 0x3];
 
         m_data.distance = damager.getLocation().distance(damagee.getLocation());
         Location loc = damager.getEyeLocation();
@@ -107,41 +117,11 @@ public class CombatListeners implements Listener
         return Math.abs(ent1.getLocation().getYaw() - ent0.getLocation().getYaw());
     }
 
-    private static Yaw GetYaw(final Entity ent)
-    {
-        float yaw = ent.getLocation().getYaw();
-        yaw = (yaw % 360 + 360) % 360; // true modulo, as javas modulo is weird for negative values
-        if(yaw > 135 || yaw < -135)
-        {
-            return Yaw.NORTH;
-        }
-        else if(yaw < -45)
-        {
-            return Yaw.EAST;
-        }
-        else if(yaw > 45)
-        {
-            return Yaw.WEST;
-        }
-        else
-        {
-            return Yaw.SOUTH;
-        }
-    }
-
     public enum Side
     {
         FRONT,
         BACK,
         LEFT,
         RIGHT
-    }
-
-    public enum Yaw
-    {
-        NORTH,
-        EAST,
-        SOUTH,
-        WEST
     }
 }
